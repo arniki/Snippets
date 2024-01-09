@@ -1,0 +1,24 @@
+---
+- name: Prep
+  import_playbook: prep.yaml
+
+
+- name: Prometheus
+  hosts: prometheus
+  become: yes
+  roles:
+    - prometheus
+
+- name: Node exporters
+  hosts: node_exporters
+  gather_facts: no
+  become: yes
+  roles:
+    - node_exporters
+
+- name: Install and configure non-Prometheus VM's Nginx
+  hosts: vm1
+  gather_facts: no
+  become: yes
+  roles:
+    - nginx

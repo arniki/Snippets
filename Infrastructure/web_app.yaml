@@ -1,0 +1,14 @@
+---
+- name: Prep
+  import_playbook: prep.yaml
+
+
+
+- name: Web app
+  hosts: app_servers
+  gather_facts: no
+  become: yes
+  roles:
+#   - agama
+#   - uwsgi
+    - nginx

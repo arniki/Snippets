@@ -1,0 +1,79 @@
+
+- name: Install
+  apt: name=bind9 state=latest
+
+- name: Configure .options
+  template:
+    src: named.conf.options.j2
+    dest: /etc/bind/named.conf.options
+  notify: restart bind9
+
+- name: Configure .local master
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+  notify: restart bind9
+  when: inventory_hostname in groups['dns_masters']
+
+- name: Configure .local slave
+  template:
+    src: named.conf.local.slave.j2
+    dest: /etc/bind/named.conf.local
+  notify: restart bind9
+  when: inventory_hostname in groups['dns_slaves']
+
+- name: Configure master zone
+  template:
+    src: db.cool.j2
+    dest: /var/lib/bind/db.{{ domain_name }}
+    force: no
+  notify: restart bind9
+  when: inventory_hostname in groups['dns_masters']
+
+- name: Start and enable
+  service:
+    name: bind9
+    state: started
+    enabled: yes
+
+- meta: flush_handlers
+
+- name: Install DNSPython
+  apt: name=python3-dnspython state=latest
+
+- name: Add DNS record for backup server
+  nsupdate:
+    key_name: "nsupdate.key"
+    key_secret: "{{ dns_update_key }}"
+    key_algorithm: "hmac-sha256"
+    server: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    zone: "{{ domain_name }}{{ top_level_domain}}"
+    record: "backup"
+    value: "{{ backup_ip }}"
+  when: inventory_hostname in groups['dns_masters']
+
+- name: Add DNS A records
+  nsupdate:
+    key_name: "nsupdate.key"
+    key_secret: "{{ dns_update_key }}"
+    key_algorithm: "hmac-sha256"
+    server: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    zone: "{{ domain_name }}{{ top_level_domain}}"
+    record: "{{ item }}"
+    value: "{{ hostvars[item]['ansible_default_ipv4']['address'] }}"
+  loop: "{{ groups['all'] }}"
+  when: inventory_hostname in groups['dns_masters']
+
+- name: Add DNS CNAME records
+  nsupdate:
+    key_name: "nsupdate.key"
+    key_secret: "{{ dns_update_key }}"
+    key_algorithm: "hmac-sha256"
+    type: "CNAME"
+    server: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    zone: "{{ domain_name }}{{ top_level_domain}}"
+    record: "{{ item.cname }}"
+    value: "{{ item.real }}"
+  loop: "{{ dns_cnames }}"
+  when: inventory_hostname in groups['dns_masters']
+

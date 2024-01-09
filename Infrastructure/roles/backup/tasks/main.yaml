@@ -1,0 +1,98 @@
+---
+##############################################################
+# Init
+
+- name: Create MySQL backup user
+  mysql_user:
+    name: "{{ mysql_backup_user }}"
+    password: "{{ mysql_backup_pass }}"
+    priv: "{{ mysql_database }}.*:ALL"
+    host: "localhost"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: inventory_hostname != "arniki-3"
+
+- name: Copy MySQL configuration file
+  template:
+    src: backup.my.cnf.j2
+    dest: /home/backup/.my.cnf
+    owner: backup
+    group: backup
+    mode: "0400"
+  when: inventory_hostname in groups['db_servers']
+
+#####################################################
+# Create required directories (backup, restore and scripts) ON ALL
+
+- name: Create dir for backups
+  file:
+    path: /home/backup/backup
+    state: directory
+    owner: backup
+    group: backup
+    mode: "0755"
+
+- name: Create dir for restore
+  file:
+    path: /home/backup/restore
+    state: directory
+    owner: backup
+    group: backup
+    mode: "0755"
+
+- name: Create dir for scripts
+  file:
+    path: /home/backup/scripts
+    state: directory
+    owner: backup
+    group: backup
+    mode: "0755"
+
+######################################################
+# Copy Grafana backup scripts
+
+- name: Copy Grafana backup scripts
+  template:
+    src: grafana.sh
+    dest: /home/backup/scripts/grafana.sh
+    owner: backup
+    group: backup
+    mode: "0500"
+  when: inventory_hostname == "arniki-3"
+
+- name: Copy grafana cronjob
+  template:
+    src: crontab.vm1.j2
+    dest: /etc/cron.d/backup
+    owner: root
+    group: root
+    mode: "0644"
+  when: inventory_hostname == "arniki-3"
+
+########################################################
+# Copy MySQL backup scripts to VM2
+
+- name: Copy MySQL backup script
+  template:
+    src: mysql.sh
+    dest: /home/backup/scripts
+    owner: backup
+    group: backup
+    mode: "0700"
+  when: inventory_hostname == "arniki-2"
+
+- name: Copy crontab to VM2
+  template:
+    src: crontab.vm2.j2
+    dest: /etc/cron.d/backup
+    owner: root
+    group: root
+    mode: "0644"
+  when: inventory_hostname == "arniki-2"
+
+########################################################
+# Install Duplicity and setup cronjobs
+
+- name: Install Duplicity
+  apt:
+    name: duplicity
+    state: latest

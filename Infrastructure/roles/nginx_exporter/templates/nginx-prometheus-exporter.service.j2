@@ -1,0 +1,15 @@
+[Unit]
+Description=Prometheus exporter for Nginx
+Documentation=https://github.com/nginxinc/nginx-prometheus-exporter
+
+[Service]
+Restart=always
+User=prometheus
+#EnvironmentFile=/etc/default/nginx-prometheus-exporter
+ExecStart=/usr/local/bin/nginx-prometheus-exporter $ARGS
+#ExecReload=/bin/kill -HUP $MAINPID
+#TimeoutStopSec=20s
+#SendSIGKILL=no
+
+[Install]
+WantedBy=multi-user.target

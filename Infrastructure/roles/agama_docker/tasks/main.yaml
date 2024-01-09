@@ -1,0 +1,29 @@
+
+- name: Create directory /opt/agama
+  file:
+    path: /opt/agama
+    state: directory
+
+- name: Download container
+  get_url:
+    url: https://raw.githubusercontent.com/hudolejev/agama/master/Dockerfile
+    dest: /opt/agama/Dockerfile
+
+- name: Build container
+  docker_image:
+    name: agama
+    source: build
+    build:
+      path: /opt/agama
+      network: host
+
+- name: Create Containers
+  docker_container:
+    name: "agama800{{ item }}"
+    image: agama
+    restart_policy: unless-stopped
+    published_ports:
+      - "800{{ item }}:8000"
+    env:
+      AGAMA_DATABASE_URI: mysql://{{ mysql_user }}:{{ mysql_password }}@{{ mysql_host }}/{{ mysql_database }}
+  loop: "{{ range(agama_container_per_vm)|list }}"

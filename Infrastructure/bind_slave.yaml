@@ -1,0 +1,35 @@
+---
+- name: Preps
+  import_playbook: prep.yaml
+
+- name: Update Nginx configuration
+  hosts: web_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - nginx
+
+- name: DNS + Bind + Bind exporter on VM1
+  hosts: dns_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - bind
+
+
+- name: Prometheus
+  hosts: prometheus
+  gather_facts: false
+  become: yes
+  roles:
+    - prometheus
+    - bind_exporter
+
+- name: Update DNS conf
+  hosts: dns_config
+  gather_facts: false
+  become: yes
+  roles:
+    - dns_config
+
+

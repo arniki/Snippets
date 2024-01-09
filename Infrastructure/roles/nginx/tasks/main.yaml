@@ -1,0 +1,26 @@
+---
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: latest
+    update_cache: yes
+
+#
+#- name: Change Nginx's default page
+#  copy:
+#    src: index.html
+#    dest: /var/www/html/
+
+- name: Change Nginx's default configuration
+  #  copy:
+  #    src: default
+  template:
+    src: default.j2
+    dest: /etc/nginx/sites-available/default
+  notify: restart nginx
+
+- name: Configure Nginx stub_status
+  template:
+    src: stub_status.j2
+    dest: /etc/nginx/sites-enabled/stub_status
+  notify: restart nginx

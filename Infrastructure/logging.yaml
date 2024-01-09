@@ -1,0 +1,24 @@
+---
+- name: Prep
+  import_playbook: prep.yaml
+
+- name: InfluxDB + Telegraf
+  hosts: influxdb
+  gather_facts: no
+  become: yes
+  roles:
+    - influxdb
+
+- name: Transfer and setup pinger sciprt
+  hosts: pinger
+  gather_facts: false
+  become: yes
+  roles:
+    - pinger
+
+- name: Configure Rsyslog
+  hosts: all
+  gather_facts: false
+  become: yes
+  roles:
+    - rsyslog

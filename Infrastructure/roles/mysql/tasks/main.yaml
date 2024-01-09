@@ -1,0 +1,45 @@
+---
+- name: Install MySQL
+  apt: 
+    name: mysql-server
+    state: latest
+
+- name: Override MySQL configuration
+  template:
+    src: override.cnf
+    dest: /etc/mysql/mysql.conf.d/
+  notify: Restart MySQL
+
+- name: Install PyMySQL for MySQL
+  apt: 
+    name: python3-pymysql
+    state: latest
+
+- name: Create MySQL database
+  mysql_db:
+    name: "{{ mysql_database }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create application user
+  mysql_user:
+    name: "{{ mysql_user }}"
+    password: "{{ mysql_password }}"
+    priv: "{{ mysql_database }}.*:ALL"
+    host: "%"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  no_log: true
+
+- name: Create MySQL replication user
+  mysql_user:
+    name: "{{ mysql_replication_user }}"
+    password: "{{ mysql_replication_pass }}"
+    priv: "*.*:REPLICATION SLAVE"
+    host: "%"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  no_log: true
+
+- name: backup user to InfluxDB and MySQL groups on VM2
+  user:
+    name: backup
+    groups: mysql
+    append: yes

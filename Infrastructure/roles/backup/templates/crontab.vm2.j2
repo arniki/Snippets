@@ -1,0 +1,8 @@
+# Update At 01:00 on Sundays
+0 1 * * 0 backup [[ $((($(date +%s) / 604800) % 4)) == 0 ]] && /home/backup/scripts/mysql.sh
+
+# Upload  backups every week at 1:00 on Sundays
+# test rsync run to remove host key verification failed error
+2 0 * * 0  backup  rsync -e "ssh -o StrictHostKeyChecking=no" --dry-run /etc/resolv.conf arniki@backup.cool.ab
+2 1 * * 0  backup  duplicity --force --no-encryption full /home/backup/backup/ rsync://arniki@backup.{{ domain_name }}{{ top_level_domain }}//home/arniki/ &> /dev/null
+

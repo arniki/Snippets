@@ -1,0 +1,27 @@
+---
+- name: Create Grafana directories
+  file:
+    name: "{{ item }}"
+    state: directory
+    owner: "472"
+    group: "472"
+    recurse: true
+  loop:
+    - /opt/docker/grafana
+    - /opt/docker/grafana-etc
+
+
+- name: Create container
+  docker_container:
+    name: grafana
+    image: grafana/grafana
+    restart_policy: unless-stopped
+    volumes:
+      - /opt/docker/grafana:/var/lib/grafana
+    published_ports:
+      - "{{ docker_grafana_port }}:3000"
+    network_mode: host
+    env:
+      GF_SERVER_ROOT_URL: "http://localhost:{{ docker_grafana_port }}/grafana"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+

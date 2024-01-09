@@ -1,0 +1,58 @@
+
+
+global:
+  scrape_interval:     15s
+  evaluation_interval: 30s
+
+
+scrape_configs:
+
+  - job_name: linux
+    static_configs:
+      - targets:
+          {% for vm in groups['all'] %}
+#            - {{ hostvars[vm]['inventory_hostname'] }}.{{ domain_name }}{ top_level_domain }}:{{ prometheus_exporters['node']['port'] }}
+            - {{ hostvars[vm]['inventory_hostname'] }}:{{ prometheus_exporters['node']['port'] }}
+          {% endfor %}
+
+
+
+  - job_name: nginx_exporters
+    static_configs:
+      - targets:
+          {% for vm in groups['web_servers'] %}
+#            - {{ hostvars[vm]['inventory_hostname'] }}.{{ domain_name }}{ top_level_domain }}:{{ prometheus_exporters['nginx']['port'] }}
+            - {{ hostvars[vm]['inventory_hostname'] }}:{{ prometheus_exporters['nginx']['port'] }}
+          {% endfor %}
+
+  - job_name: mysql_exporter
+    static_configs:
+      - targets:
+          {% for vm in groups['db_servers'] %}
+#            - {{ hostvars[vm]['inventory_hostname'] }}.{{ domain_name }}{ top_level_domain }}:{{ prometheus_exporters['mysql']['port'] }}
+            - {{ hostvars[vm]['inventory_hostname'] }}:{{ prometheus_exporters['mysql']['port'] }}
+          {% endfor %}
+
+
+
+  - job_name: bind_exporter
+    static_configs:
+      - targets:
+          {% for vm in groups['dns_servers'] %}
+#            - {{ hostvars[vm]['inventory_hostname'] }}.{{ domain_name }}{ top_level_domain }}:{{ prometheus_exporters['bind']['port'] }}
+            - {{ hostvars[vm]['inventory_hostname'] }}:{{ prometheus_exporters['bind']['port'] }}
+          {% endfor %}
+
+  - job_name: haproxy_exporter
+    static_configs:
+      - targets:
+          {% for vm in groups['haproxy'] %}
+            - {{ hostvars[vm]['inventory_hostname'] }}:{{ docker_haproxy_exporter_port }}
+          {% endfor %}
+
+  - job_name: keepalived_exporter
+    static_configs:
+      - targets:
+          {% for vm in groups['haproxy'] %}
+            - {{ hostvars[vm]['inventory_hostname'] }}:{{ keepalived_exporter_port }}
+          {% endfor %}

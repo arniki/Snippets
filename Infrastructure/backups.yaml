@@ -1,0 +1,17 @@
+---
+- name: Preps
+  import_playbook: prep.yaml
+
+- name: Change dns
+  hosts: dns_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - bind
+
+- name: Configure backup
+  hosts: all
+  gather_facts: false
+  become: yes
+  roles:
+    - backup

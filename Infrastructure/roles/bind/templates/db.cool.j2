@@ -1,0 +1,13 @@
+$TTL	604800
+{{ domain_name }}{{ top_level_domain}}.	IN	SOA	{{ domain_name }}{{ top_level_domain}}. {{ username }}.{{ domain_name }}{{ top_level_domain}} (
+			      1		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+                IN  NS  {{ groups['dns_servers'][0] }}
+
+{% for host in groups['dns_servers'] %}
+{{ host }}  IN  A {{ hostvars[host]['ansible_default_ipv4']['address'] }}
+{% endfor %}

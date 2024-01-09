@@ -1,0 +1,11 @@
+---
+- name: Prep
+  import_playbook: prep.yaml
+
+
+- name: Web server
+  hosts: web_servers
+  become: yes
+  roles:
+    -  users
+    -  nginx

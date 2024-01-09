@@ -1,0 +1,115 @@
+
+  - name: Collect vm info
+    hosts: all
+    tasks:
+      - setup:
+
+  - name: Preps
+    import_playbook: prep.yaml
+
+  - name: Initialize
+    hosts: all
+    roles:
+      - users
+    become: yes
+    gather_facts: no
+
+  - name: General monitoring
+    hosts: all
+    roles:
+      - node_exporters
+      - rsyslog
+    become: yes
+    gather_facts: no
+
+  - name: DNS server
+    hosts: dns_servers
+    roles:
+      - bind
+      - bind_exporter
+    become: yes
+    gather_facts: no
+
+  - name: Prometheus
+    hosts: prometheus
+    roles:
+      - prometheus
+    become: yes
+    gather_facts: no
+
+  - name: Resolvers
+    hosts: all
+    roles:
+      - dns_config
+    become: yes
+    gather_facts: no
+
+  - name: Web server
+    hosts: web_servers
+    roles:
+      - nginx
+    become: yes
+    gather_facts: no
+
+  - name: Database server
+    hosts: db_servers
+    roles:
+      - mysql
+      - mysql_exporter
+    become: yes
+    gather_facts: no
+
+  - name: Docker
+    hosts: all
+    roles:
+      - docker
+    become: yes
+    gather_facts: no
+    tags: docker
+
+  - name: Web app
+    hosts: app_servers
+    roles:
+      - agama_docker
+      - nginx_exporter
+    become: yes
+    gather_facts: no
+    tags: agama
+
+  - name: Grafana
+    hosts: grafana
+    roles:
+      - grafana_docker
+    become: yes
+    gather_facts: no
+    tags: grafana
+
+  - name: InfluxDB
+    hosts: influxdb
+    roles:
+      - influxdb
+      - pinger
+    become: yes
+    gather_facts: no
+
+  - name: Backup
+    hosts: all
+    roles:
+      - backup
+    become: yes
+    gather_facts: no
+
+  - name: HAProxy
+    hosts: haproxy
+    roles:
+      - haproxy
+    become: yes
+    gather_facts: no
+
+  - name: Keepalived
+    hosts: haproxy
+    roles:
+      - keepalived
+    become: yes
+    gather_facts: no
+

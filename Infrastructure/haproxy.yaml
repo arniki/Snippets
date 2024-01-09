@@ -1,0 +1,73 @@
+---
+- name: Preps
+  import_playbook: prep.yaml
+
+- name: Setup MySQL
+  hosts: db_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - mysql
+
+- name: Nginx + conf
+  hosts: web_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - nginx
+
+- name: DNS + conf
+  hosts: dns_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - bind
+
+- name: Backup
+  hosts: all
+  gather_facts: false
+  become: yes
+  roles:
+    - backup
+
+- name: Docker
+  hosts: docker
+  gather_facts: false
+  become: yes
+  roles:
+    - docker
+
+- name: Prometheus
+  hosts: prometheus
+  gather_facts: false
+  become: yes
+  roles:
+    - prometheus
+
+- name: Create Grafana Docker container
+  hosts: grafana
+  gather_facts: false
+  become: yes
+  roles:
+    - grafana_docker
+
+- name: Agama Docker
+  hosts: app_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - agama_docker
+
+- name: Install HAProxy
+  hosts: haproxy
+  gather_facts: false
+  become: yes
+  roles:
+    - haproxy
+
+- name: Install keepalived
+  hosts: haproxy
+  gather_facts: false
+  become: yes
+  roles:
+    - keepalived

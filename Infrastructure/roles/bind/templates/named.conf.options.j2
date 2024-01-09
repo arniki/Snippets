@@ -1,0 +1,37 @@
+key "transfer.key" {
+        algorithm hmac-sha256;
+        secret "{{ dns_transfer_key }}";
+};
+
+key "nsupdate.key" {
+        algorithm hmac-sha256;
+        secret "{{ dns_update_key }}";
+};
+
+
+acl localnet { 
+    {% for subnet in allowed_networks %}
+      {{ subnet }};
+    {% endfor %}
+};
+
+options {
+        directory "/var/cache/bind";
+        
+        allow-query { localnet; };
+
+        forwarders {
+            {% for forwarder in dns_forwarders %}
+              {{ forwarder }};
+            {% endfor %}
+        };
+
+        dnssec-validation no;
+
+        auth-nxdomain no;    # conform to RFC1035
+        
+};
+
+statistics-channels {
+  inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
+};

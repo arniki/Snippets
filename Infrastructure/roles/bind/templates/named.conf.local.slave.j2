@@ -1,0 +1,15 @@
+{% for master in groups['dns_masters'] %}
+server {{ hostvars[master]['ansible_default_ipv4']['address'] }} {
+    keys { transfer.key; };
+};
+{% endfor %}
+
+zone "{{ domain_name }}{{ top_level_domain}}" IN {
+    type slave;
+    file "/var/lib/bind/db.{{ domain_name }}";
+    masters {
+{% for master in groups['dns_masters'] %}
+        {{ hostvars[master]['ansible_default_ipv4']['address'] }};
+{% endfor %}
+    };
+};

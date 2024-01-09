@@ -1,0 +1,17 @@
+---
+- name: Prep
+  import_playbook: prep.yaml
+
+- name: DNS server
+  hosts: dns_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - bind
+
+- name: DNS configuration
+  hosts: all
+  gather_facts: no
+  become: yes
+  roles:
+    - dns_config

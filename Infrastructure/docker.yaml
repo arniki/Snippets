@@ -1,0 +1,40 @@
+---
+- name: Preps
+  import_playbook: prep.yaml
+
+- name: Nginx
+  hosts: web_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - nginx
+
+- name: Setup DNS
+  hosts: dns_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - bind
+
+
+- name: Docker
+  hosts: app_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - docker
+
+- name: Create Grafana Docker container
+  hosts: grafana
+  gather_facts: false
+  become: yes
+  roles:
+    - grafana_docker
+
+- name: Setup Agama Docker container
+  hosts: app_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - agama_docker
+

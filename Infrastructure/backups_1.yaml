@@ -1,0 +1,11 @@
+---
+- name: Preps
+  import_playbook: prep.yaml
+
+
+- name: Configure backup and upload of backups
+  hosts: all
+  gather_facts: false
+  become: yes
+  roles:
+    - backup

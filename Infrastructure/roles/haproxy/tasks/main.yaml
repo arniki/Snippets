@@ -1,0 +1,20 @@
+---
+- name: Install HAProxy
+  apt:
+    name: haproxy
+    state: latest
+
+- name: Configure HAProxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: Restart HAProxy
+
+- name: Exporter
+  docker_container:
+    name: haproxy_exporter
+    image: quay.io/prometheus/haproxy-exporter:v0.9.0
+    ports:
+      - 9101:9101
+    command: --haproxy.scrape-uri="http://172.17.0.1:88/haproxy?stats;csv"
+    restart_policy: always

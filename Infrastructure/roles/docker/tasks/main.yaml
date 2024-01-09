@@ -1,0 +1,26 @@
+---
+- name: Docker package
+  apt:
+    name:
+      - python3-docker
+      - docker.io
+    state: latest
+
+- name: Add dns??
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+  notify: restart docker
+
+- name: Start Docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add user backup to group docker
+  user:
+    name: backup
+    group: docker
+    append: yes
+

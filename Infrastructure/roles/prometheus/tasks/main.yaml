@@ -1,0 +1,17 @@
+---
+- name: Install Prometheus
+  apt:
+    name: prometheus
+    update_cache: yes
+
+- name: Configure Prometheus' web path
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+  notify: Restart Prometheus
+
+- name: Configure Prometheus
+  template:
+    src: prometheus.yaml.j2
+    dest: /etc/prometheus/prometheus.yml
+  notify: Restart Prometheus

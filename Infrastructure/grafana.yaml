@@ -1,0 +1,52 @@
+---
+- name: Prep
+  import_playbook: prep.yaml
+
+
+- name: Reconfigure Nginx servers
+  hosts: web_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - nginx
+
+- name: Reconfigure Prometheus
+  hosts: prometheus
+  gather_facts: no
+  become: yes
+  roles:
+    - prometheus
+
+- name: Reconfigure Bind9
+  hosts: dns_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - bind
+
+- name: Install Nginx exporter
+  hosts: all
+  become: yes
+  roles:
+    - nginx_exporter
+ 
+- name: Install Bind exporter
+  hosts: dns_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - bind_exporter
+ 
+- name: Install MySQL exporter
+  hosts: db_servers
+  gather_facts: no
+  become: yes
+  roles:
+    - mysql_exporter
+
+#- name: Install Grafana
+#  hosts: grafana
+#  gather_facts: no
+#  become: yes
+#  roles:
+#    - grafana

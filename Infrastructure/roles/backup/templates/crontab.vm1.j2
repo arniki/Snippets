@@ -1,0 +1,10 @@
+
+# every At 01:00 on Sunday
+0 1 * * 0 backup /home/backup/scripts/grafana.sh
+
+# The magic behind this cool crontab is here:
+# https://www.systutorials.com/how-to-run-a-cron-job-every-two-weeks-months-days/
+
+# Upload  the backups At 01:03 on Sundays.
+3 0 * * 0  backup  rsync -e "ssh -o StrictHostKeyChecking=no" --dry-run /etc/resolv.conf arniki@backup.cool.ab
+3 1 * * 0  backup  duplicity --force --no-encryption full /home/backup/backup/ rsync://arniki@backup.{{ domain_name }}{{ top_level_domain }}//home/arniki/ &> /dev/null

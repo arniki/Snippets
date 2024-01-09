@@ -1,0 +1,14 @@
+#Old initial configuration
+
+server {
+	listen 80 default_server;
+        listen [::]:80 default_server;
+
+	server_name _;
+
+	location / {
+		include uwsgi_params;
+                #uwsgi_pass IP_address:Port
+                uwsgi_pass unix:/opt/agama/agama.sock;
+	}
+}

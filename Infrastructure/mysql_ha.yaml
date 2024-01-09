@@ -1,0 +1,81 @@
+---
+- name: Preps
+  import_playbook: prep.yaml
+
+- name: Setup Nginx, Agama, uWSGI
+  hosts: app_servers
+  gather_facts: false
+  become: yes
+  roles:
+#   - agama
+#   - uwsgi
+    - nginx
+
+- name: Setup MySQL
+  hosts: db_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - mysql
+
+- name: Setup DNS server
+  hosts: dns_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - bind
+
+- name: Setup DNS configuration
+  hosts: dns_config
+  gather_facts: false
+  become: yes
+  roles:
+    - dns_config
+
+- name: Setup Prometheus
+  hosts: prometheus
+  gather_facts: false
+  become: yes
+  roles:
+    - prometheus
+
+- name: Setup Node exporters
+  hosts: node_exporters
+  gather_facts: false
+  become: yes
+  roles:
+    - node_exporters
+
+- name: Setup Nginx exporter
+  hosts: all
+  become: yes
+  roles:
+    - nginx_exporter
+
+- name: Setup exporter
+  hosts: dns_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - bind_exporter
+
+- name: Setup MySQL exporter
+  hosts: db_servers
+  gather_facts: false
+  become: yes
+  roles:
+    - mysql_exporter
+
+#- name: Setup Grafana
+#  hosts: grafana
+#  gather_facts: false
+#  become: yes
+#  roles:
+#    - grafana
+
+- name: Setting up backups
+  hosts: all
+  gather_facts: false
+  become: yes
+  roles:
+    - backup

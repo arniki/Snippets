@@ -1,0 +1,3 @@
+{
+        "dns": [{%- for vm in groups['dns_slaves'] -%}{%- if not loop.last -%}"{{ hostvars[vm]['ansible_default_ipv4']['address'] }}", {% endif %}{%- if loop.last -%}"{{ hostvars[vm]['ansible_default_ipv4']['address']}}"{%- endif -%}{%- endfor -%}]
+}

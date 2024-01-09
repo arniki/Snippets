@@ -1,0 +1,27 @@
+---
+- name: install influxdb package + client
+  apt:
+    name:
+      - influxdb
+      - influxdb-client
+
+- name: Telegraf package
+  get_url:
+    url: https://dl.influxdata.com/telegraf/releases/telegraf_1.16.0-1_amd64.deb
+    dest: /opt/telegraf_1.16.0-1_amd64.deb
+
+- name: Install Telegraf
+  apt:
+    deb: /opt/telegraf_1.16.0-1_amd64.deb
+
+- name: Reconfigure Telegraf
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+  notify: Restart Telegraf
+
+- name: backup user to InfluxDB and MySQL groups on VM2
+  user:
+    name: backup
+    groups: influxdb
+    append: yes
